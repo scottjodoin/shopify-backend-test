@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Posts</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Fingerprint</th>
+      <th>Primary Color</th>
+      <th>Secondary Color</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @posts.each do |post| %>
+      <tr>
+        <td><% if post.image.attached? %><%= image_tag  post.image.variant(resize_to_limit: [100, 100]) %> <% else %>Image not found<% end %>
+        <td><%= post.title %></td>
+        <td><%= post.description %></td>
+        <td><% if post.fingerprint.present? %><%= post.fingerprint %><% else %>(none)<% end %></td>
+        <td><% if post.primary_color.present? %><%= post.primary_color.name %><% end %></td>
+        <td><% if post.secondary_color.present? %><%= post.secondary_color.name %><% end %></td>
+        
+
+        <td><%= link_to 'Show', post %></td>
+        <td><%= link_to 'Edit', edit_post_path(post) %></td>
+        <td><%= link_to 'Destroy', post, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Post', new_post_path %>
