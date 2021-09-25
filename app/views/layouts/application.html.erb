@@ -18,7 +18,9 @@
       </div>
 
       <div class="collapse navbar-collapse">
-        <%= link_to 'New Post', new_post_path, class: "float-end text-nowrap btn btn-success" %>
+        <%= button_tag 'New Post', new_post_path, class: "float-end text-nowrap btn btn-success" do %>
+          <i>
+        <% end %>
       </div>
     </nav>
     <% if notice.present? or alert.present? %>
