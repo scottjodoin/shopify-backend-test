@@ -1,39 +1,156 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Posts</h1>
 
-<table>
-  <thead>
-    <tr>
-      <th>Image</th>
-      <th>Title</th>
-      <th>Description</th>
-      <th>Fingerprint</th>
-      <th>Primary Color</th>
-      <th>Secondary Color</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @posts.each do |post| %>
-      <tr>
-        <td><% if post.image.attached? %><%= image_tag  post.image.variant(resize_to_limit: [100, 100]) %> <% else %>Image not found<% end %>
-        <td><%= post.title %></td>
-        <td><%= post.description %></td>
-        <td><% if post.fingerprint.present? %><%= post.fingerprint %><% else %>(none)<% end %></td>
-        <td><% if post.primary_color.present? %><%= post.primary_color.name %><% end %></td>
-        <td><% if post.secondary_color.present? %><%= post.secondary_color.name %><% end %></td>
-        
-
-        <td><%= link_to 'Show', post %></td>
-        <td><%= link_to 'Edit', edit_post_path(post) %></td>
-        <td><%= link_to 'Destroy', post, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+<div class="p-2 rounded border col-lg-6">
+  <div id="search-by-image" class="d-none">
+    <button class="float-end btn-show-search-by-filters btn btn-sm btn-secondary search-type-toggle mb-3"><i class="me-1 fa fa-caret-left"></i> Back</button>
+    <h4><i class="fa fa-camera me-3 text-muted"></i>Search by image</h4>
+    <%= form_with url: "/image_search", method: :post do |form| %>
+      <label class="form-label" for="customFile">Search by image</label>
+      <%= form.file_field :image, class: "form-control form-control-sm mb-3" %>
+      <%= form.submit "Search", class: "btn btn-sm btn-primary" %>
     <% end %>
-  </tbody>
-</table>
+  </div>
 
-<br>
+  <div id="search-by-filter">
+    <%= form_with url: "/posts", method: :get do |form| %>
+      <div class="input-group input-group-sm rounded mb-2">
+        
+        <input type="text" name="query" id="query" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+      
+        <button class="search-type-toggle fa fa-camera input-group-text text-dark" title="Search by photo"></button>
+        
+        <%= button_tag type: 'submit', class: "input-group-text text-dark", id: "query-submit" do %>
+          <i class="fa fa-search" aria-hidden="true"></i>
+        <% end %>
+      </div>
 
-<%= link_to 'New Post', new_post_path %>
+      <a class="advanced-search-toggle btn btn-secondary btn-sm">Advanced search <i class="fa fa-caret-down ms-1"></i></a>
+
+      <div id="advanced-search" class="d-none mt-3">
+        <%= form.label :filter_size, "Filter by size:" %>
+        <div class="mb-2"  role="group">
+
+          <div class="btn-group btn-group-sm p-0 ">
+            <input type="radio" class="btn-check" name="size" id="fs_none" checked>
+            <label class="btn btn-outline-secondary text-nowrap" for="fs_none">Any size</label>
+            <input type="radio" class="btn-check" name="size" id="fs_small">
+            <label class="btn btn-outline-secondary text-nowrap" for="fs_small" title="< 200px">Small</label>
+            <input type="radio" class="btn-check" name="size" id="fs_medium">
+            <label class="btn btn-outline-secondary text-nowrap" for="fs_medium" title="200px - 800px">Medium</label>
+            <input type="radio" class="btn-check" name="size" id="fs_large">
+            <label class="btn btn-outline-secondary text-nowrap" for="fs_large" title="> 800px">Large</label>
+          </div>
+        </div>
+
+        <%= form.label :filter_color, "Filter by color:" %>
+        <div class="mb-2">
+          <div class="btn-group btn-group-sm" role="group" aria-label="Filter color radio toggle button group">
+            <input type="radio" class="btn-check" name="filter_color" id="fc_none" checked>
+            <label class="btn btn-outline-dark" for="fc_none" title="No color filtering"><i class="fa fa-ban"></i></label>
+
+            <%
+            i = 0
+            @filter_colors.each do |filter_color| %>
+              <% if i == 6 %>
+                </div><div class="btn-group btn-group-sm" role="group" aria-label="Filter color radio toggle button group">
+              <% end %>
+              <input type="radio" class="btn-check" name="filter_color" id="filter_color_<%= filter_color.id %>" class="btn-check">
+              <label class="btn btn-outline-dark px-2 filter_color_radio" for="filter_color_<%= filter_color.id %>" style="background-color:#<%= filter_color.color %>" title="<%= filter_color.name %>"><i class="fa fa-check text-secondary invisible"></i></label>
+              <% i += 1 %>
+            <% end %>
+          </div>
+        </div>
+
+        <%= form.submit "Search", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+<% if current_user.present? and current_user.admin and params[:normal].nil? %>
+    <%= link_to 'View as regular user', posts_path(request.parameters.merge({:normal => true})), class: "btn btn-primary float-end" %>
+    <h1>Posts</h1> 
+    <tbody>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Fingerprint</th>
+          <th>Primary Color</th>
+          <th>Secondary Color</th>
+          <th>User</th>
+          <th colspan="3"></th>
+        </tr>
+      </thead>
+      
+      <% @posts.each do |post| %>
+        <tr>
+          <td><% if post.image.attached? %><%= image_tag  post.image.variant(resize_to_limit: [100, 100]) %> <% else %>Image not found<% end %>
+          <td><%= post.title %></td>
+          <td><%= post.description %></td>
+          <td><% if post.fingerprint.present? %><%= post.fingerprint %><% else %>(none)<% end %></td>
+          <td><% if post.primary_color.present? %><%= post.primary_color.name %><% end %></td>
+          <td><% if post.secondary_color.present? %><%= post.secondary_color.name %><% end %></td>
+          <td><% if post.user.present? %><%= post.user.username %><% else %>Anonymous<% end %></td> 
+          <td><%= link_to 'Show', post %></td>
+          <td><%= link_to 'Edit', edit_post_path(post) %></td>
+          <td><%= link_to 'Destroy', post, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% else %>
+    <h1>New content</h1> 
+    <% @posts.each do |post| %>
+      <% if post.image.attached? %>
+        <%= link_to image_tag(post.image.variant(resize_to_fill: [200, 200])), url_for(post) %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <script>
+
+    pageInit();
+
+    function pageInit(){
+      addCheckMarksToRadioButtons();
+      makeEnterClickSearch();
+      addSearchToggleButtons();
+    }
+
+    function addCheckMarksToRadioButtons(){
+      $(".filter_color_radio").click(function(e){
+        $(".filter_color_radio>i").addClass("invisible");
+        console.log(e);
+        $(e.target).find("i").removeClass("invisible");
+      });
+    }
+
+    function makeEnterClickSearch(){
+      $("#query").keypress((e)=>{
+        if (e.which == 13)
+          $("#query-submit").click();
+      });
+    }
+
+    function addSearchToggleButtons(){
+
+      // toggle the advanced text search
+      $(".advanced-search-toggle").click((e)=>{
+        $("#advanced-search").toggleClass("d-none");
+        $(e.target).find("i").toggleClass("fa-caret-up");
+      });
+
+      // toggle the image upload form.
+      $(".search-type-toggle").click((e)=>{
+        $("#search-by-image").toggleClass("d-none");
+        $("#search-by-filter").toggleClass("d-none");
+      });
+    }
+  
+  </script>

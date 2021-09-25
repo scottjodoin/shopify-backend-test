@@ -3,8 +3,14 @@ class PostsController < ApplicationController
 
   # GET /posts or /posts.json
   def index
+    params.permit(:normal)
     @posts = Post.all
-      .includes(:primary_color,:secondary_color)
+      .includes(:primary_color,:secondary_color,:user)
+  end
+
+  def image_search
+    params.permit(:image)
+    
   end
 
   # GET /posts/1 or /posts/1.json
@@ -24,6 +30,7 @@ class PostsController < ApplicationController
   def create
     @post = Post.new(post_params)
     
+    @post.user = current_user if user_signed_in?
     
 
 
@@ -130,6 +137,12 @@ class PostsController < ApplicationController
 
   # DELETE /posts/1 or /posts/1.json
   def destroy
+    if not current_user.admin and not current_user == @post.user
+      format.html { render :edit, status: :forbidden, notice: "You do not have permission to delete this post." }
+      format.json { render json: "No permission", status: :unprocessable_entity }
+      return
+    end
+
     @post.destroy
     respond_to do |format|
       format.html { redirect_to posts_url, notice: "Post was successfully destroyed." }
