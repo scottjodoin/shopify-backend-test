@@ -5,7 +5,6 @@
     <button class="float-end btn-show-search-by-filters btn btn-sm btn-secondary search-type-toggle mb-3"><i class="me-1 fa fa-caret-left"></i> Back</button>
     <h4><i class="fa fa-camera me-3 text-muted"></i>Search by image</h4>
 
-
     <form enctype="multipart/form-data" action="/posts" accept-charset="UTF-8" method="post">
       <%= token_tag nil %>
       <label class="form-label" for="search_by_image_file">Search by image</label>
@@ -15,15 +14,16 @@
     </form>
   </div>
 
+    
   <div id="search-by-filter">
-    <%= form_with url: "/posts", method: :get do |form| %>
+    <form id="search-filter-form" enctype="multipart/form-data" action="/" method=get>
       <div class="input-group input-group-sm rounded mb-2">
         
-        <input type="text" name="query" id="query" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+        <input type="text" name="q" id="query" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
       
         <button class="search-type-toggle fa fa-camera input-group-text text-dark" title="Search by photo"></button>
         
-        <%= button_tag type: 'submit', class: "input-group-text text-dark", id: "query-submit" do %>
+        <%= button_tag type: 'submit', class: "input-group-text text-dark", id: "query-submit", value: "commit" do %>
           <i class="fa fa-search" aria-hidden="true"></i>
         <% end %>
       </div>
@@ -31,25 +31,25 @@
       <a class="advanced-search-toggle btn btn-secondary btn-sm">Advanced search <i class="fa fa-caret-down ms-1"></i></a>
 
       <div id="advanced-search" class="d-none mt-3">
-        <%= form.label :filter_size, "Filter by size:" %>
+        <label for=filter_size>Filter by size:</label>
         <div class="mb-2"  role="group">
 
           <div class="btn-group btn-group-sm p-0 ">
-            <input type="radio" class="btn-check" name="size" id="fs_none" checked>
-            <label class="btn btn-outline-secondary text-nowrap" for="fs_none">Any size</label>
-            <input type="radio" class="btn-check" name="size" id="fs_small">
+            <input type="radio" class="btn-check" name="size" id="fs_none" value="none" checked>
+            <label class="btn btn-outline-secondary text-nowrap"  for="fs_none">Any size</label>
+            <input type="radio" class="btn-check" name="size" value="small" id="fs_small">
             <label class="btn btn-outline-secondary text-nowrap" for="fs_small" title="< 200px">Small</label>
-            <input type="radio" class="btn-check" name="size" id="fs_medium">
+            <input type="radio" class="btn-check" name="size" value="medium" id="fs_medium">
             <label class="btn btn-outline-secondary text-nowrap" for="fs_medium" title="200px - 800px">Medium</label>
-            <input type="radio" class="btn-check" name="size" id="fs_large">
+            <input type="radio" class="btn-check" name="size" value="large" id="fs_large">
             <label class="btn btn-outline-secondary text-nowrap" for="fs_large" title="> 800px">Large</label>
           </div>
         </div>
 
-        <%= form.label :filter_color, "Filter by color:" %>
+        <label for="filter_color">Filter by color:<label>
         <div class="mb-2">
           <div class="btn-group btn-group-sm" role="group" aria-label="Filter color radio toggle button group">
-            <input type="radio" class="btn-check" name="filter_color" id="fc_none" checked>
+            <input type="radio" class="btn-check" name="filter_color" id="fc_none" value="0" checked>
             <label class="btn btn-outline-dark" for="fc_none" title="No color filtering"><i class="fa fa-ban"></i></label>
 
             <%
@@ -58,16 +58,18 @@
               <% if i == 6 %>
                 </div><div class="btn-group btn-group-sm" role="group" aria-label="Filter color radio toggle button group">
               <% end %>
-              <input type="radio" class="btn-check" name="filter_color" id="filter_color_<%= filter_color.id %>" class="btn-check">
-              <label class="btn btn-outline-dark px-2 filter_color_radio" for="filter_color_<%= filter_color.id %>" style="background-color:#<%= filter_color.color %>" title="<%= filter_color.name %>"><i class="fa fa-check text-secondary invisible"></i></label>
+              <input type="radio" class="btn-check" name="filter_color" id="filter_color_<%= filter_color.id %>" value="<%= filter_color.id %>" class="btn-check">
+              <label class="btn btn-outline-dark px-2 filter_color_radio" for="filter_color_<%= filter_color.id %>" style="background-color:#<%= filter_color.color %>" title="<%= filter_color.name %>">
+                <i class="fa fa-check text-secondary invisible"></i>
+              </label>
               <% i += 1 %>
             <% end %>
           </div>
         </div>
 
-        <%= form.submit "Search", class: "btn btn-primary" %>
+        <input type="submit" text="Search" form="search-filter-form" class="btn btn-primary" />
       </div>
-    <% end %>
+    </form>
   </div>
 </div>
 
@@ -92,7 +94,7 @@
       
       <% @posts.each do |post| %>
         <tr>
-          <td><% if post.image.attached? %><%= image_tag  post.image.variant(resize_to_limit: [100, 100]), style: "width:100px,height:100px" %> <% else %>Image not found<% end %>
+          <td><div style: "width:100px,height:100px"><% if post.image.attached? %><%= image_tag  post.image.variant(resize_to_limit: [100, 100]) %></div><% else %>Image not found<% end %>
           <td><%= post.title %></td>
           <td><%= post.description %></td>
           <td><% if post.fingerprint.present? %><%= post.fingerprint %><% else %>(none)<% end %></td>
@@ -107,61 +109,67 @@
     </tbody>
   </table>
 
+<% else %>
+  <% if @search_image.present? %>
+  <div class="rounded border p-3 col-lg-6 my-3">
+    <h2>Search by image:</h2>
+    <%= image_tag  @search_image.variant(resize_to_fill: [100, 100]) %>
+  </div>
   <% else %>
-    <% if @search_image.present? %>
-    <div class="rounded border p-3 col-lg-6 my-3">
-      <h2>Search by image:</h2>
-      <%= image_tag  @search_image.variant(resize_to_fill: [100, 100]) %>
-    </div>
-    <% else %>
-      <h1>New content</h1> 
-    <% end %>
-
+    <h1>New content</h1> 
+  <% end %>
+  
+  <% if not @posts.nil? and not @posts.empty? %>
     <% @posts.each do |post| %>
       <% if post.image.attached? %>
         <%= link_to image_tag(post.image.variant(resize_to_fill: [200, 200])), url_for(post) %>
       <% end %>
     <% end %>
+  <% else %>
+    <p>No results!</p>
   <% end %>
+<% end %>
 
-  <script>
+<script>
 
-    pageInit();
+  pageInit();
 
-    function pageInit(){
-      addCheckMarksToRadioButtons();
-      makeEnterClickSearch();
-      addSearchToggleButtons();
-    }
+  function pageInit(){
+    addCheckMarksToRadioButtons();
+    makeEnterClickSearch();
+    addSearchToggleButtons();
+  }
 
-    function addCheckMarksToRadioButtons(){
-      $(".filter_color_radio").click(function(e){
-        $(".filter_color_radio>i").addClass("invisible");
-        console.log(e);
-        $(e.target).find("i").removeClass("invisible");
-      });
-    }
+  function addCheckMarksToRadioButtons(){
+    $(".filter_color_radio").click(function(e){
+      $(".filter_color_radio>i").addClass("invisible");
+      $(e.target).find("i").removeClass("invisible");
+    });
+  }
 
-    function makeEnterClickSearch(){
-      $("#query").keypress((e)=>{
-        if (e.which == 13)
-          $("#query-submit").click();
-      });
-    }
+  function makeEnterClickSearch(){
+    $("#query").keypress((e)=>{
+      if (e.which == 13)
+        $("#query-submit").click();
+    });
+  }
 
-    function addSearchToggleButtons(){
+  function toggleAdvancedTextSearch(){
 
-      // toggle the advanced text search
-      $(".advanced-search-toggle").click((e)=>{
-        $("#advanced-search").toggleClass("d-none");
-        $(e.target).find("i").toggleClass("fa-caret-up");
-      });
+    $("#advanced-search").toggleClass("d-none");
+    $(".advanced-search-toggle").find("i").toggleClass("fa-caret-up");
 
-      // toggle the image upload form.
-      $(".search-type-toggle").click((e)=>{
-        $("#search-by-image").toggleClass("d-none");
-        $("#search-by-filter").toggleClass("d-none");
-      });
-    }
-  
-  </script>
+  }
+
+  function addSearchToggleButtons(){
+
+    $(".advanced-search-toggle").click(toggleAdvancedTextSearch);
+
+    // toggle the image upload form.
+    $(".search-type-toggle").click((e)=>{
+      $("#search-by-image").toggleClass("d-none");
+      $("#search-by-filter").toggleClass("d-none");
+    });
+  }
+
+</script>

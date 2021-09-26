@@ -3,9 +3,19 @@ class PostsController < ApplicationController
 
   # GET /posts or /posts.json
   def index
-    params.permit(:normal,:image_search)
+    params.permit(
+    :normal,  # for administrators to see what regular users see
+    :image_search, # for image search
+    :q, :size, :filter_color # for filtering
+    )
 
-    # image searching
+    #image filtering
+    is_query_search = (not (params[:q]).nil? and not (params[:q]).empty?)
+    is_size_search = params[:size] != "none"
+    is_filter_color_search = (!!params[:filter_color] and params[:filter_color].to_i != 0)
+    is_filter_search = [is_query_search,is_size_search,is_filter_color_search].any?
+
+    # image searching - priority
     is_image_search = params[:image_search]
     search_post = nil
 
@@ -21,14 +31,40 @@ class PostsController < ApplicationController
       @search_image  = search_post.image
     end
 
-    @post = Post.new
+    @post = Post.new # for the search image box
+
     @posts = []
     if not @search_image.nil?
       @posts = Post.where(search: false, fingerprint: search_post.fingerprint)
         .includes(:primary_color,:secondary_color,:user)
-    else
-      @posts = Post.all
+    elsif is_filter_search
+      @is_filter_search = true
+      skip = "1=1 or "
+
+      size_hash = {"none" => {"min" => 0, "max" => 0}, "small" => {"min" => 0, "max" => 200}, "medium" => {"min" => 200, "max" => 800}, "large" => {"min" => 800, "max" => 0}}
+      size_filter = params[:size]
+      size_filter ||= "none"
+      logger.debug "NONE IN SIZE HASH"
+      logger.debug size_hash[size_filter]["max"]
+
+      size_min = size_hash[size_filter]["min"]
+      size_max = size_hash[size_filter]["max"]
+      size_min_skip = (size_min == 0) ? skip : ""
+      size_max_skip = (size_max == 0) ? skip : ""
+            
+      q_skip = (is_query_search) ? "" : skip
+      size_min_skip = 
+      filter_color_skip = (is_filter_color_search) ? "" : skip
+
+      @posts = Post
         .where(search: false)
+        .where("#{q_skip}title like ? or description like ?","%#{params[:q]}%", "%#{params[:q]}%")
+        .where("#{size_min_skip}height > ? and width > ?", size_min,size_min)
+        .where("#{size_max_skip}height < ? and width < ?", size_max, size_max)
+        .where("#{filter_color_skip}primary_color_id = ?", params[:filter_color].to_i)
+        #.includes(:primary_color,:secondary_color,:user)
+    else
+      @posts = Post.where(search: false)
         .includes(:primary_color,:secondary_color,:user)
     end
   end
@@ -87,7 +123,7 @@ class PostsController < ApplicationController
         new_url = (posts.length == 1) ? posts_url(posts.first) : posts_url
         format.html { redirect_to new_url, notice: "Image(s) were successfully created." }
         format.json { render :show, status: :created, location: url }
-          
+        
         # search processing
         posts.each do |post|
           set_fingerprint post
@@ -111,8 +147,11 @@ class PostsController < ApplicationController
 
     image_blob = post.image.blob.download
 
-    pixels = Magick::Image.from_blob(image_blob)
-      .first
+    img = Magick::Image.from_blob(image_blob).first
+    post.width = img.columns
+    post.height = img.rows
+    
+    pixels = img
       .resize(3, 3)
       .get_pixels(0,0,3,3)
 
@@ -136,7 +175,7 @@ class PostsController < ApplicationController
     image_blob = post.image.blob.download
     kernel_string = ""
     # calculate the most common colours based on a smaller version of the image
-    resolution = 20
+    resolution = 40
           
     filters_by_id = FilterColor.all.map { |filter| [filter.id, filter] }.to_h
 
