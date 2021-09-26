@@ -20,6 +20,6 @@
 
 <% if user_signed_in? and (current_user.admin or current_user==@post.user) %>
   <%= link_to 'Edit', edit_post_path(@post), class: "btn btn-secondary" %> |
-  <%= link_to 'Delete', post, method: :delete, data: { confirm: 'Are you sure?'}, class: "btn btn-warning" %> |
+  <%= link_to 'Delete', posts_path(@post), method: :delete, data: { confirm: 'Are you sure?'}, class: "btn btn-warning" %> |
 <% end %>
 <%= link_to 'Back', posts_path, class: "btn btn-outline-secondary" %>

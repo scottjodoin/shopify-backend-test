@@ -18,14 +18,22 @@
       </div>
 
       <div class="collapse navbar-collapse">
+        <% if not user_signed_in? %>
+          <%= link_to "Sign up", "/users/sign_up", class: "btn btn-outline-primary text-nowrap me-2" %>
+        <% else %>
+          <%= link_to user.username, "/users/edit", action: :edit, class: "btn btn-outline-primary text-nowrap me-2" %>
+        <% end %>
+
         <%= link_to new_post_path, class: "float-end text-nowrap btn btn-success" do %>
-          <i class="fa fa-plus me-1"></i>Upload image
+          <i class="fa fa-upload me-1"></i>Upload images
         <% end %>
       </div>
     </nav>
     <% if notice.present? or alert.present? %>
-      <p class="notice"><%= notice %></p>
-      <p class="alert"><%= alert %></p>
+    <div class="container">
+      <div class="alert alert-success"><%= notice %></div>
+      <div id="alert" class="alert alert-warning"><%= alert %></div>
+    </div>
     <% end %>
     <div class="container">
       <%= yield %>

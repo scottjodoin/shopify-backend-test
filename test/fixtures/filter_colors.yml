@@ -1,9 +1,16 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  name: MyString
-  color: MyString
-
-two:
-  name: MyString
-  color: MyString
+red:
+  name: Red
+  color: F44336
+green:
+  name: Green
+  color: 4CAF50
+blue:
+  name: Blue
+  color: 2196F3
+white:
+  name: White
+  color: FFFFFF
+black:
+  name: Black
+  color: "000000"

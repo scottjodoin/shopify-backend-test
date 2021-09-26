@@ -1,5 +1,3 @@
-<p id="notice"><%= notice %></p>
-
 <div class="p-2 rounded border col-lg-6">
   <div id="search-by-image" class="d-none">
     <button class="float-end btn-show-search-by-filters btn btn-sm btn-secondary search-type-toggle mb-3"><i class="me-1 fa fa-caret-left"></i> Back</button>
@@ -167,6 +165,7 @@
 
     // toggle the image upload form.
     $(".search-type-toggle").click((e)=>{
+      e.preventDefault();
       $("#search-by-image").toggleClass("d-none");
       $("#search-by-filter").toggleClass("d-none");
     });

@@ -1,0 +1,10 @@
+# active_storage_attachments.yml
+ones_picture:
+  name: image
+  record: one (Post)
+  blob: ones_picture_blob
+
+twos_picture:
+  name: image
+  record: two (Post)
+  blob: twos_picture_blob

@@ -1,11 +1,13 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  name: MyString
-  title: MyString
-  content: 
-
+  title: One
+  description: "this is the first image"
+  user: :tom
+  
 two:
-  name: MyString
-  title: MyString
-  content: 
+  description: the second image
+  title: Two
+  user: :bob_admin
+
+# small:
+#   description: the small image
+#   title: Small

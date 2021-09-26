@@ -1,0 +1,22 @@
+ones_picture_blob:
+  key: edt3uq8rhon6xzcvqxsylwyp0o94 # run in console: ActiveStorage::Blob.generate_unique_secure_token 
+  filename: one.jpg
+  content_type: "image/jpg"
+  metadata: '{"identified":true,"analyzed":true}'
+  # service_name: Disk
+  byte_size: <%= File.size('test/fixtures/tmp/storage/ed/t3/edt3uq8rhon6xzcvqxsylwyp0o94') %>
+  checksum: <%= Digest::MD5.file('test/fixtures/tmp/storage/ed/t3/edt3uq8rhon6xzcvqxsylwyp0o94').base64digest %>
+
+twos_picture_blob:
+  key: 9ymrrlgdt14ief6vvi66ncuel04e # run in console: ActiveStorage::Blob.generate_unique_secure_token 
+  filename: two.jpg
+  content_type: "image/jpg"
+  metadata: '{"identified":true,"analyzed":true}'
+  # service_name: Disk
+  byte_size: <%= File.size('test/fixtures/tmp/storage/9y/mr/9ymrrlgdt14ief6vvi66ncuel04e') %>
+  checksum: <%= Digest::MD5.file('test/fixtures/tmp/storage/9y/mr/9ymrrlgdt14ief6vvi66ncuel04e').base64digest %>
+
+  #some unique keys
+  # 4eltaxuck64jzbb0lm3t9nwk96ib
+  # 5s712n46d2fidn43kss2og9bpchd
+  # t4hr8l4botoigaeoo4lpaky4ia53

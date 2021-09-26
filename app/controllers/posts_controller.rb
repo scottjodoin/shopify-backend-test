@@ -44,8 +44,6 @@ class PostsController < ApplicationController
       size_hash = {"none" => {"min" => 0, "max" => 0}, "small" => {"min" => 0, "max" => 200}, "medium" => {"min" => 200, "max" => 800}, "large" => {"min" => 800, "max" => 0}}
       size_filter = params[:size]
       size_filter ||= "none"
-      logger.debug "NONE IN SIZE HASH"
-      logger.debug size_hash[size_filter]["max"]
 
       size_min = size_hash[size_filter]["min"]
       size_max = size_hash[size_filter]["max"]
@@ -106,6 +104,9 @@ class PostsController < ApplicationController
 
     # save posts
     posts.each do |post|
+      if user_signed_in?
+        post.user = current_user
+      end
       post.save
     rescue
       errors = "error in saving a post"
@@ -120,7 +121,9 @@ class PostsController < ApplicationController
         end
 
         # output
-        new_url = (posts.length == 1) ? posts_url(posts.first) : posts_url
+        new_url = (posts.length == 1) ? post_path(posts.first.id) : posts_path
+        logger.debug "NEW URL:"
+
         format.html { redirect_to new_url, notice: "Image(s) were successfully created." }
         format.json { render :show, status: :created, location: url }
         
@@ -140,7 +143,7 @@ class PostsController < ApplicationController
   def set_fingerprint (post)
     # calculate the fingerprint of the image
     require 'rubygems'
-    require 'RMagick'
+    require 'rmagick'
     require "open-uri"
     my64 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-'
     kernel_string = ""
@@ -169,7 +172,7 @@ class PostsController < ApplicationController
 
   def set_primary_color (post)
     require 'rubygems'
-    require 'RMagick'
+    require 'rmagick'
     require "open-uri"
 
     image_blob = post.image.blob.download
@@ -227,8 +230,13 @@ class PostsController < ApplicationController
 
   # PATCH/PUT /posts/1 or /posts/1.json
   def update
+
+    if  not user_signed_in? or (not current_user.admin and not current_user == @post.user)
+      redirect_to @post, notice: "You do not have permission to edit this post." and return
+    end
+
     respond_to do |format|
-      if @post.update(post_params)
+      if @post.update (update_params)
         format.html { redirect_to @post, notice: "Post was successfully updated." }
         format.json { render :show, status: :ok, location: @post }
       else
@@ -240,15 +248,12 @@ class PostsController < ApplicationController
 
   # DELETE /posts/1 or /posts/1.json
   def destroy
-
-    if not current_user.admin and not current_user == @post.user
-      format.html { render :edit, status: :forbidden, notice: "You do not have permission to delete this post." }
-      format.json { render json: "No permission", status: :unprocessable_entity }
-      return
+    if not user_signed_in? or (not current_user.admin and not current_user == @post.user)
+      redirect_to @post, notice: "You do not have permission to delete this post." and return
     end
 
-    @post.destroy
     respond_to do |format|
+      @post.destroy
       format.html { redirect_to posts_url, notice: "Post was successfully destroyed." }
       format.json { head :no_content }
     end
@@ -261,16 +266,13 @@ class PostsController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
+
+    def update_params
+      params.require(:post).permit(:title,:description)
+    end
+
     def posts_params
-      logger.debug params.to_yaml
-      params.require(:authenticity_token)
-      temp_params = params.permit(:posts => [:title, :description, :image])
-
-      if user_signed_in?
-        temp_params = temp_params.map{ |post| post.merge({:user => current_user }) }
-      end
-
-      temp_params
+      params.permit(:posts => [:title, :description, :image])
     end
     
     def search_post_params
