@@ -1,13 +1,15 @@
 <p id="notice"><%= notice %></p>
 
-
 <div class="p-2 rounded border col-lg-6">
   <div id="search-by-image" class="d-none">
     <button class="float-end btn-show-search-by-filters btn btn-sm btn-secondary search-type-toggle mb-3"><i class="me-1 fa fa-caret-left"></i> Back</button>
     <h4><i class="fa fa-camera me-3 text-muted"></i>Search by image</h4>
-    <%= form_with url: "/image_search", method: :post do |form| %>
+
+
+    <%= form_with(model: @post, local: true) do |form| %>
       <label class="form-label" for="customFile">Search by image</label>
       <%= form.file_field :image, class: "form-control form-control-sm mb-3" %>
+      <%= form.hidden_field :search, value: "true" %>
       <%= form.submit "Search", class: "btn btn-sm btn-primary" %>
     <% end %>
   </div>
@@ -105,7 +107,15 @@
   </table>
 
   <% else %>
-    <h1>New content</h1> 
+    <% if @search_image.present? %>
+    <div class="rounded border p-3 col-lg-6 my-3">
+      <h2>Search by image:</h2>
+      <%= image_tag  @search_image.variant(resize_to_fill: [100, 100]) %>
+    </div>
+    <% else %>
+      <h1>New content</h1> 
+    <% end %>
+
     <% @posts.each do |post| %>
       <% if post.image.attached? %>
         <%= link_to image_tag(post.image.variant(resize_to_fill: [200, 200])), url_for(post) %>

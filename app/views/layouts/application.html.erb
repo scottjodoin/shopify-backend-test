@@ -18,8 +18,8 @@
       </div>
 
       <div class="collapse navbar-collapse">
-        <%= button_tag 'New Post', new_post_path, class: "float-end text-nowrap btn btn-success" do %>
-          <i>
+        <%= link_to new_post_path, class: "float-end text-nowrap btn btn-success" do %>
+          <i class="fa fa-plus me-1"></i>Upload image
         <% end %>
       </div>
     </nav>

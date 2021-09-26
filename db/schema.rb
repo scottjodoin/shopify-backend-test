@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_22_142552) do
+ActiveRecord::Schema.define(version: 2021_09_25_213705) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 2021_09_22_142552) do
     t.bigint "primary_color_id"
     t.bigint "secondary_color_id"
     t.bigint "user_id"
+    t.boolean "search", default: false
     t.index ["primary_color_id"], name: "index_posts_on_primary_color_id"
     t.index ["secondary_color_id"], name: "index_posts_on_secondary_color_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
