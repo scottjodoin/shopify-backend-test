@@ -8,6 +8,7 @@ class PostsController < ApplicationController
     # image searching
     is_image_search = params[:image_search]
     search_post = nil
+
     begin 
       search_post = Post.find(params[:image_search])
     rescue
@@ -43,48 +44,64 @@ class PostsController < ApplicationController
 
   # GET /posts/1/edit
   def edit
+    if not user_signed_in? or not (current_user.admin or @post.user == current_user)
+      redirect_to "#{posts_url}/#{@post.id}" and return
+    end
   end
 
   # POST /posts or /posts.json
   def create
+    search_params = params.permit(:image,:search)
+    is_search = search_params[:search]
 
-    #logger.debug "Index attributes hash: #{params.to_yaml}"
-    #logger.debug "Search? #{is_search.to_s}"
-    myparams = params.require(:post).permit(:image,:search,:commit)
-    is_search = myparams[:search]
+    errors = ""
+    posts = []
 
-    @post = nil
+    # construct posts
     if is_search
-      @post = Post.new(search_post_params)
-    else 
-      #@post = Post.new(post_params)
-    end  
-    
-    @post.user = current_user if user_signed_in?
+      posts.append Post.new(search_post_params)
+    else
+      posts_params[:posts].each do |i, p|
+        posts.append Post.new(p)
+      rescue
+        errors = "error in creating a post"
+      end
+    end
 
+    # save posts
+    posts.each do |post|
+      post.save
+    rescue
+      errors = "error in saving a post"
+    end
+    
     respond_to do |format|
-      if @post.save
-        set_fingerprint()
-        set_primary_color()
-        
+      if errors == ""
         if is_search
-          redirect_to "#{posts_url}?image_search=#{@post.id}"
+          set_fingerprint posts.first
+          redirect_to "#{posts_url}?image_search=#{posts.first.id}"
           return
         end
-        
 
         # output
-        format.html { redirect_to @post, notice: "Post was successfully created." }
-        format.json { render :show, status: :created, location: @post }
+        new_url = (posts.length == 1) ? posts_url(posts.first) : posts_url
+        format.html { redirect_to new_url, notice: "Image(s) were successfully created." }
+        format.json { render :show, status: :created, location: url }
+          
+        # search processing
+        posts.each do |post|
+          set_fingerprint post
+          set_primary_color post
+          post.save
+        end
       else
         format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @post.errors, status: :unprocessable_entity }
+        format.json { render json:errors, status: :unprocessable_entity }
       end
-      
     end
   end
 
-  def set_fingerprint
+  def set_fingerprint (post)
     # calculate the fingerprint of the image
     require 'rubygems'
     require 'RMagick'
@@ -92,7 +109,7 @@ class PostsController < ApplicationController
     my64 = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-'
     kernel_string = ""
 
-    image_blob = @post.image.blob.download
+    image_blob = post.image.blob.download
 
     pixels = Magick::Image.from_blob(image_blob)
       .first
@@ -106,17 +123,17 @@ class PostsController < ApplicationController
       kernel_string += my64[pixel.blue  / 256 / 4]
     end
 
-    @post.fingerprint = kernel_string
-    @post.save
+    post.fingerprint = kernel_string
+    post.save
 
   end
 
-  def set_primary_color
+  def set_primary_color (post)
     require 'rubygems'
     require 'RMagick'
     require "open-uri"
 
-    image_blob = @post.image.blob.download
+    image_blob = post.image.blob.download
     kernel_string = ""
     # calculate the most common colours based on a smaller version of the image
     resolution = 20
@@ -150,9 +167,9 @@ class PostsController < ApplicationController
     histogram.delete(primary_id)
     secondary_id = largest_hash_key(histogram)
     
-    @post.primary_color = filters_by_id[primary_id]
-    @post.secondary_color = filters_by_id[secondary_id]
-    @post.save
+    post.primary_color = filters_by_id[primary_id]
+    post.secondary_color = filters_by_id[secondary_id]
+    post.save
   end
     
   def hex_color_to_rgb(hex)
@@ -205,11 +222,19 @@ class PostsController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
-    def post_params
-      params.require(:post).permit(:title, :description, :image)
+    def posts_params
+      logger.debug params.to_yaml
+      params.require(:authenticity_token)
+      temp_params = params.permit(:posts => [:title, :description, :image])
+
+      if user_signed_in?
+        temp_params = temp_params.map{ |post| post.merge({:user => current_user }) }
+      end
+
+      temp_params
     end
     
     def search_post_params
-      params.require(:post).permit(:image,:search).merge({:title => "Search", :description => "", :search => true})
+      params.permit(:image,:search).merge({:title => "Search", :description => "", :search => true})
     end
 end

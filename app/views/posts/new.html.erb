@@ -1,5 +1,56 @@
 <h1>New Post</h1>
 
-<%= render 'form', post: @post %>
+<form id="detail-form" enctype="multipart/form-data" action="/posts" accept-charset="UTF-8" method="post">
+    <%= token_tag nil %>
+    <div id="image-list-form" class="mb-3"></div>
+    <div id="file-list-form">
+      <input type="file" name="posts[0][image]" class="image-upload form-control form-control-sm mb-3 col-md-6" />
+    </div>
+    <input type="submit" text="Submit" id="btn-submit" class="btn btn-primary" disabled/>
+</form>
 
-<%= link_to 'Back', posts_path %>
+<script>
+  let i = 0;
+  $(".image-upload").on("change",uploadChanged);
+  
+  function uploadChanged(e){
+    $(e.target).addClass("d-none");
+    console.log(e.target.value);
+    const file = e.target.files[0];
+    if (!file.type.startsWith('image/')){ return }
+
+    $("#image-list-form").append(
+      `
+      <div class="rounded p-3 d-flex flex-wrap">
+        <span id="image-wrapper-${i}" class="w-auto" >
+        </span>
+        <div class="col-md-6 px-3">
+          <label for="posts[${i}][title]">Title:</label>
+          <input type="text" name="posts[${i}][title]" class="form-control" value="${file.name.split('.').shift()}"/>
+          <label for="posts[${i}][description]">Description:</label>
+          <input type="text" name="posts[${i}][description]" class="form-control"/>
+          <p>${file.size/1000 + " KB"}</p>
+        </div?
+      </div>`
+      );
+    const img = document.createElement("img");
+    img.classList.add("obj");
+    img.width=300;
+    img.height=300;
+    img.file = file;
+
+    $(`#image-wrapper-${i}`).append(img);
+
+    const reader = new FileReader();
+    reader.onload = (function(aImg) { return function(e) {aImg.src = e.target.result;}; })(img);
+    reader.readAsDataURL(file);
+
+    $("#btn-submit").prop('disabled', false);
+
+    i++;   
+    const $new_uploader = $(`<input type="file" name="posts[${i}][image]" class="image-upload form-control form-control-sm mb-3 col-md-6" />`);
+    $("#file-list-form").append($new_uploader);
+    $new_uploader.on("change",uploadChanged);
+
+  }
+</script>

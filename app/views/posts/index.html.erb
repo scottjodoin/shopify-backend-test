@@ -6,12 +6,13 @@
     <h4><i class="fa fa-camera me-3 text-muted"></i>Search by image</h4>
 
 
-    <%= form_with(model: @post, local: true) do |form| %>
-      <label class="form-label" for="customFile">Search by image</label>
-      <%= form.file_field :image, class: "form-control form-control-sm mb-3" %>
-      <%= form.hidden_field :search, value: "true" %>
-      <%= form.submit "Search", class: "btn btn-sm btn-primary" %>
-    <% end %>
+    <form enctype="multipart/form-data" action="/posts" accept-charset="UTF-8" method="post">
+      <%= token_tag nil %>
+      <label class="form-label" for="search_by_image_file">Search by image</label>
+      <input type="file" name="image" id="search_by_image_file" class="form-control form-control-sm mb-3"/>
+      <input type="hidden" name="search" val="true" />
+      <input type="submit" text="Submit" class="btn btn-sm btn-primary"/>
+    </form>
   </div>
 
   <div id="search-by-filter">
@@ -91,7 +92,7 @@
       
       <% @posts.each do |post| %>
         <tr>
-          <td><% if post.image.attached? %><%= image_tag  post.image.variant(resize_to_limit: [100, 100]) %> <% else %>Image not found<% end %>
+          <td><% if post.image.attached? %><%= image_tag  post.image.variant(resize_to_limit: [100, 100]), style: "width:100px,height:100px" %> <% else %>Image not found<% end %>
           <td><%= post.title %></td>
           <td><%= post.description %></td>
           <td><% if post.fingerprint.present? %><%= post.fingerprint %><% else %>(none)<% end %></td>
