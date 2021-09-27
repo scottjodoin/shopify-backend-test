@@ -44,11 +44,25 @@ cd shopify-backend-test
 
 * Then create the database with  ```rails db:create```
 
-* And migrate/seed it with ```rails db:migrate && db:seed```
+* And migrate/seed it with ```rake db:migrate```
 
 * To run the test suite, use ```rails test```
 
 * To start the server, use ```rails server``` and visit ```localhost:3000/```
 
+# Creating the first administrator user
+Once you have a server up and running, visit localhost:3000 and sign up for an account. The email can be fake. Then, run the following to make the first user and administrator.
+
+```
+bin/rails console
+user = User.first
+user.admin = true
+user.save
+```
+
+The user you just created should have administrator priviledges! Happy moderating.
+
 * If you need some sample images, you can find some in the ```/example_images``` directory.
+
+
 
