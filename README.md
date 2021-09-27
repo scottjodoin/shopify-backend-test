@@ -27,6 +27,7 @@ You can perform any combination of the following filters:
 
 * Filter by size - small, medium, or large
 
+You can also **search by image** to see if the image is already in the database. The search algorithm will be able to find images that are of higher or lower resolution, or stretched. It will not be able to find rotated, edited, or similar images.
 
 ## Get up and running
 
