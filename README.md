@@ -1,15 +1,15 @@
-# Scott Jodoin - shopify-backend-test
+# Scott Jodoin - Scimgur - shopify-backend-test
 
-📸 **Scimgur** is an image repository web app. It
+## 📸 **Scimgur** is an image repository web app. [Try it out live!](https://shopify-backend-test.herokuapp.com/)
 
-# 🌐 Upload images:
+## 🌐 Upload images:
 
 * You can upload files one at a time, or as a bulk operation.
 
 * Images are processed when they are uploaded to allow for searchability.
 
 
-# 👥 Users:
+## 👥 Users:
 
 * You can upload images anonymously, but you will not be able to delete them after you have uploaded them.
 
@@ -17,7 +17,7 @@
 
 * Administrators get a special tabular view in the index and can delete / modify and post.
 
-# 🔎 Search
+## 🔎 Search
 
 You can perform any combination of the following filters:
 
@@ -28,7 +28,7 @@ You can perform any combination of the following filters:
 * Filter by size - small, medium, or large
 
 
-# Get up and running
+## Get up and running
 
 * Clone the repository and enter the directory with
 ```
@@ -50,7 +50,8 @@ cd shopify-backend-test
 
 * To start the server, use ```rails server``` and visit ```localhost:3000/```
 
-# Creating the first administrator user
+## Creating the first administrator user
+
 Once you have a server up and running, visit localhost:3000 and sign up for an account. The email can be fake. Then, run the following to make the first user and administrator.
 
 ```
@@ -64,5 +65,18 @@ The user you just created should have administrator priviledges! Happy moderatin
 
 * If you need some sample images, you can find some in the ```/example_images``` directory.
 
+## 🌱 Issues and next steps
 
+* The search by image is stored as a post and needs to be deleted after its first request.
 
+* More robust restrictions on the size of the images could be implemented.
+
+* Searching by user could be added, or perhaps a profile page.
+
+* Setting images to private could be as simple as adding a private:boolean field to the Post database
+
+* Adding images with a multi-select proved difficult due to browser privacy restrictions. With more time I would investigate ActiveStorage further.
+
+* Deleting images in bulk is another task that could be added, probably through a JSON object.
+
+* Adding information and links to the images themselves.
