@@ -20,23 +20,37 @@
       <div class="collapse navbar-collapse">
         <% if not user_signed_in? %>
           <%= link_to "Sign up", "/users/sign_up", class: "btn btn-outline-primary text-nowrap me-2" %>
+          <%= link_to "Log in ", user_session_path , class: "btn btn-outline-secondary text-nowrap me-2" %>
         <% else %>
-          <%= link_to user.username, "/users/edit", action: :edit, class: "btn btn-outline-primary text-nowrap me-2" %>
+          <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle me-2" type="button" id="user-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <%= current_user.username %>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="user-dropdown">
+              <li><%= link_to "Edit account info", "/users/edit", action: :edit, class: "dropdown-item" %></li>
+              <li><%= link_to "Log out", destroy_user_session_path,  method: :delete, class: "dropdown-item text-danger" %></li>
+            </ul>
+          </div>
         <% end %>
 
-        <%= link_to new_post_path, class: "float-end text-nowrap btn btn-success" do %>
+        <%= link_to new_post_path, class: "float-end text-nowrap btn btn-success me-2" do %>
           <i class="fa fa-upload me-1"></i>Upload images
         <% end %>
       </div>
     </nav>
-    <% if notice.present? or alert.present? %>
-    <div class="container">
-      <div class="alert alert-success"><%= notice %></div>
-      <div id="alert" class="alert alert-warning"><%= alert %></div>
-    </div>
+    <% if notice.present? %>
+      <div class="container" id="notice" ><div class="alert alert-success"><i class="fa fa-times float-end m-1"></i><%= notice %></div></div>
     <% end %>
+
+    <% if alert.present? %>
+    <div class="container" id="alert"><div  class="alert alert-warning"><i class="fa fa-times float-end m-1"></i><%= alert %></div></div>
+    <% end %>
+
     <div class="container">
       <%= yield %>
     </div>
+    <script>
+      $("#alert,#notice").click((e)=>{$(e.target).remove();})
+    </script>
   </body>
 </html>

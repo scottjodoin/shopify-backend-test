@@ -1,24 +1,54 @@
-# README
+# Scott Jodoin - shopify-backend-test
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+📸 **Scimgur** is an image repository web app. It
 
-Things you may want to cover:
+# 🌐 Upload images:
 
-* Ruby version
+* You can upload files one at a time, or as a bulk operation.
 
-* System dependencies
+* Images are processed when they are uploaded to allow for searchability.
 
-* Configuration
 
-* Database creation
+# 👥 Users:
 
-* Database initialization
+* You can upload images anonymously, but you will not be able to delete them after you have uploaded them.
 
-* How to run the test suite
+* If you sign up for an account, you will be able to delete or modify information relating to your images.
 
-* Services (job queues, cache servers, search engines, etc.)
+* Administrators get a special tabular view in the index and can delete / modify and post.
 
-* Deployment instructions
+# 🔎 Search
 
-* ...
+You can perform any combination of the following filters:
+
+* Filter by keyword
+
+* Filter by primary color
+
+* Filter by size - small, medium, or large
+
+
+# Get up and running
+
+* Clone the repository and enter the directory with
+```
+git clone https://github.com/scottjodoin/shopify-backend-test.git
+cd shopify-backend-test
+```
+
+* Ensure that your ruby on rails is at least version: 6.0.4.1.
+
+* Developed on: Windows Subsystem for Linux (Ubuntu 18.04 LTS)
+
+* System dependencies: ```sudo apt-get install libmagickwand-dev```
+
+* Then create the database with  ```rails db:create```
+
+* And migrate/seed it with ```rails db:migrate && db:seed```
+
+* To run the test suite, use ```rails test```
+
+* To start the server, use ```rails server``` and visit ```localhost:3000/```
+
+* If you need some sample images, you can find some in the ```/example_images``` directory.
+
