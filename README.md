@@ -1,6 +1,6 @@
 # Scott Jodoin - Scimgur - shopify-backend-test
 
-## 📸 **Scimgur** is an image repository web app. [Try it out live!](https://shopify-backend-test.herokuapp.com/)
+## 📸 **Scimgur** is an image repository web app. [Try it out live! (please wait up to 30 seconds for free dyno)](https://shopify-backend-test.herokuapp.com/)
 
 ## 🌐 Upload images:
 
