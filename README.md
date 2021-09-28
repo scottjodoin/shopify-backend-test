@@ -66,7 +66,7 @@ The user you just created should have administrator priviledges! Happy moderatin
 
 * If you need some sample images, you can find some in the ```/example_images``` directory.
 
-## 🌱 Issues and next steps
+## 🌱 Next steps
 
 * The search by image is stored as a post and needs to be deleted after its first request.
 
