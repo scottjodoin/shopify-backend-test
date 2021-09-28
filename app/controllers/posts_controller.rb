@@ -221,11 +221,13 @@ class PostsController < ApplicationController
 
   def largest_hash_key(hash)
     # https://stackoverflow.com/a/6040733/13289307
-    hash.max_by{|k,v| v}[0]
+    arr = hash.max_by{|k,v| v}
+    return (!!arr) ? arr.first : nil
   end
 
   def smallest_hash_key(hash)
-    hash.min_by{|k,v| v}[0]
+    arr = hash.min_by{|k,v| v}
+    return (!!arr) ? arr.first : nil
   end
 
   # PATCH/PUT /posts/1 or /posts/1.json
