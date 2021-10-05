@@ -45,6 +45,9 @@
         <% end %>
       </div>
     </nav>
+
+    <div id="heroku-warning" class="alert alert-warning d-none"><strong>Notice:</strong> Images hosted on Heroku are ephemeral and are automatically deleted every night.</div>
+
     <% if notice.present? %>
       <div class="container" id="notice" ><div class="alert alert-success"><i class="fa fa-times float-end m-1"></i><%= notice %></div></div>
     <% end %>
@@ -58,6 +61,8 @@
     </div>
     <script>
       $("#alert,#notice").click((e)=>{$(e.target).remove();})
+      if (location.hostname="shopify-backend-test.herokuapp.com")
+        $("#heroku-warning").removeClass("d-none");
     </script>
   </body>
 </html>
